@@ -596,6 +596,14 @@
       "version": 1
     },
     "net_format_name": "",
+    "ngspice": {
+      "fix_include_paths": true,
+      "meta": {
+        "version": 0
+      },
+      "model_mode": 4,
+      "workbook_filename": ""
+    },
     "page_layout_descr_file": "",
     "plot_directory": "",
     "space_save_all_events": true,
@@ -616,6 +624,10 @@
     [
       "5b699d3c-84a6-4a70-ac7d-020a173c82b3",
       "Power"
+    ],
+    [
+      "c5d8a963-2c4c-4abc-a42b-fd306b8569bf",
+      "Keyboard and Display"
     ]
   ],
   "text_variables": {}
