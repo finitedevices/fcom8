@@ -878,7 +878,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/55882241-3f7b-4d79-a02c-b72c7a7d5b2a")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 0.54 1.37)
@@ -1283,7 +1283,7 @@
 		)
 		(path "/5af4592b-f525-4ba3-b97f-31fcbec0ac2f")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 14.08 -1.33)
@@ -3102,7 +3102,7 @@
 		(property ki_fp_filters "DIP*W7.62mm*")
 		(path "/9a3647c3-0aa3-4b82-9603-62381f3385f5")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 6.46 -1.33)
@@ -4373,7 +4373,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/f087102b-974d-4e6a-9c1d-9087c6e768c3")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 0.54 1.37)
@@ -5607,7 +5607,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/0c69aa51-ae17-40cd-aa40-310310207a4c")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 0.54 1.37)
@@ -6322,7 +6322,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/97588234-cd9e-4754-9440-22e1169ff5d8")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 0.54 -1.37)
@@ -7492,7 +7492,7 @@
 		(property ki_fp_filters "DIP?12*")
 		(path "/4ec6ead8-5583-48e8-99a9-54f9c12ca4dc")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 1.16 16.57)
@@ -7834,7 +7834,7 @@
 		(property ki_fp_filters "SW?DIP?x8*")
 		(path "/7daaf5e3-93b3-4dcc-b1e6-5deaf11e5152")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.38 -2.66)
@@ -10473,7 +10473,7 @@
 		(property ki_fp_filters "LED* LED_SMD:* LED_THT:*")
 		(path "/cab3defd-c881-4d22-a578-af495c8f924c")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.29 -1.545)
@@ -11059,7 +11059,7 @@
 		(property ki_fp_filters "LED* LED_SMD:* LED_THT:*")
 		(path "/53563945-1f11-485b-8786-bd667f1cbffe")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.29 -1.545)
@@ -11277,7 +11277,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/f54bd363-9c64-42d9-b4fc-bc3cb61443d3")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 0.54 1.37)
@@ -12247,7 +12247,7 @@
 		(property ki_fp_filters "SW?DIP?x8*")
 		(path "/5d01d41d-6c16-49d3-8eb4-3384302a8126")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.38 -2.66)
@@ -13960,7 +13960,7 @@
 		)
 		(path "/a5654e2f-1ce6-4d38-8d67-ee1f045402e5")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 13.68 -1.33)
@@ -15155,7 +15155,7 @@
 		)
 		(path "/dd2729a0-d2c0-40f8-887f-72c35141356a")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 21 1)
@@ -16418,7 +16418,7 @@
 		(property ki_fp_filters "R?Array?SIP*")
 		(path "/9339eb93-bd69-4030-9d0e-b2f9d8da9e06")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 21.67 1.31)
@@ -18777,7 +18777,7 @@
 		(property ki_fp_filters "DIP*W7.62mm* SSOP?14* TSSOP?14*")
 		(path "/8838b147-1bd9-492a-a0db-305b47d7986a")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 6.46 -1.33)
@@ -19470,7 +19470,7 @@
 		(property ki_fp_filters "SW?DIP?x4*")
 		(path "/79e95d0a-bace-4203-844d-008a631d11f0")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.38 -2.66)
@@ -21061,7 +21061,7 @@
 		(property ki_fp_filters "CP_*")
 		(path "/52eb8aa1-4d10-4aa5-bcfb-4094b044cabf")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.804775 -1.475)
@@ -22406,7 +22406,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/538160d8-ad9c-432d-83b1-d76b0901f099")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 0.54 1.37)
@@ -24258,7 +24258,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/035db2aa-19e4-4e26-89d8-a7f49c4cc8ad")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 0.54 1.37)
@@ -24461,7 +24461,7 @@
 		(property ki_fp_filters "R?Array?SIP*")
 		(path "/1822c024-44d9-49c6-a593-bcc178fff8e7")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 21.67 1.31)
@@ -25069,7 +25069,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/7621c4a8-3d0c-47ad-a0e3-2d65f97979b5")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 7.08 1.37)
@@ -27818,7 +27818,7 @@
 		(property ki_fp_filters "R?Array?SIP*")
 		(path "/726e6d09-d284-460c-a193-facd364a6377")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 21.67 1.31)
@@ -28511,7 +28511,7 @@
 		(property ki_fp_filters "D*DO?35*")
 		(path "/63e34064-96f9-455a-b699-0b6ce81420ef")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 1.04 0)
@@ -28770,7 +28770,7 @@
 		(property ki_fp_filters "*DIP*W15.24mm*")
 		(path "/1553e56b-7c23-48a2-af20-5cc5bcc900a2")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 1.16 39.43)
@@ -30473,7 +30473,7 @@
 		)
 		(path "/d7449e98-6b7b-4379-8fe4-587964fc841c")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_rect
 			(start -0.904 -0.98)
@@ -31173,7 +31173,7 @@
 		(property ki_fp_filters "LED* LED_SMD:* LED_THT:*")
 		(path "/db1aa857-3bfd-4163-b8ee-f9e03931c4d2")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.29 -1.545)
@@ -32085,7 +32085,7 @@
 		(property ki_fp_filters "Connector*:*_1x??_*")
 		(path "/464915d3-aef3-4baf-af36-155ba8eeaa26")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start -1.38 -1.38)
@@ -32360,7 +32360,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/7ee8a3c1-55ee-483a-85eb-f534e9c0788e")
 		(sheetname "/")
-		(sheetfile "FCom-8.kicad_sch")
+		(sheetfile "Aletheia.kicad_sch")
 		(attr through_hole)
 		(fp_line
 			(start 7.08 1.37)
