@@ -7,6 +7,7 @@ const SYSTEM_DIPS = [
 
 function createInstance(id) {
     var instance = document.createElement("div");
+    var mode = "off";
 
     instance.className = "instance";
 
@@ -59,13 +60,14 @@ function createInstance(id) {
 
     instance.querySelectorAll(".mode input").forEach(function(modeState) {
         modeState.addEventListener("change", function() {
-            var mode = document.querySelector(".mode input:checked").value;
+            mode = document.querySelector(".mode input:checked").value;
 
             Module.setMode(id, ["off", "ramWrite", "cpuRun"].indexOf(mode));
             Module.loop();
 
             if (mode == "ramWrite") {
                 document.querySelector(".mode input[value='off']").checked = true;
+                mode = "off";
 
                 Module.setMode(id, 0);
             }
@@ -73,7 +75,7 @@ function createInstance(id) {
     });
 
     requestAnimationFrame(function render() {
-        if (Module.getCustomLed(id)) {
+        if (mode == "cpuRun" && Module.getCustomLed(id)) {
             document.querySelector(".led.custom").classList.add("on");
         } else {
             document.querySelector(".led.custom").classList.remove("on");
