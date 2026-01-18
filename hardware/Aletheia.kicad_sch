@@ -12804,7 +12804,7 @@
 		)
 		(uuid "002d4264-af36-49f1-bbcf-ee7b7ee204fc")
 	)
-	(label "A5"
+	(label "A2"
 		(at 133.35 83.82 90)
 		(effects
 			(font
@@ -12894,7 +12894,7 @@
 		)
 		(uuid "142fa6cc-086b-44cc-942c-8a343feeecf0")
 	)
-	(label "A2"
+	(label "A5"
 		(at 140.97 83.82 90)
 		(effects
 			(font
@@ -12914,7 +12914,7 @@
 		)
 		(uuid "14e0aef3-c6e0-45c6-8f5e-940084d4cb7b")
 	)
-	(label "D0"
+	(label "D7"
 		(at 196.85 83.82 90)
 		(effects
 			(font
@@ -12934,7 +12934,7 @@
 		)
 		(uuid "1f845c82-05ef-48dc-ac9d-7e000e11573b")
 	)
-	(label "D6"
+	(label "D1"
 		(at 181.61 83.82 90)
 		(effects
 			(font
@@ -12984,7 +12984,7 @@
 		)
 		(uuid "2fd43c35-4f11-40ba-bf58-7ac38bd2a21c")
 	)
-	(label "D7"
+	(label "D0"
 		(at 179.07 83.82 90)
 		(effects
 			(font
@@ -13004,7 +13004,7 @@
 		)
 		(uuid "34bab06a-49b4-48c8-a574-20c62d74a0b0")
 	)
-	(label "D4"
+	(label "D3"
 		(at 186.69 83.82 90)
 		(effects
 			(font
@@ -13054,7 +13054,7 @@
 		)
 		(uuid "46897b72-8ca2-477f-9cfc-47febefd0cd5")
 	)
-	(label "A0"
+	(label "A7"
 		(at 146.05 83.82 90)
 		(effects
 			(font
@@ -13144,7 +13144,7 @@
 		)
 		(uuid "5533290e-49b9-42b1-a01d-272f8db961c7")
 	)
-	(label "A7"
+	(label "A0"
 		(at 128.27 83.82 90)
 		(effects
 			(font
@@ -13184,7 +13184,7 @@
 		)
 		(uuid "642b35a6-e851-4848-a473-b1068f8d42f3")
 	)
-	(label "A1"
+	(label "A6"
 		(at 143.51 83.82 90)
 		(effects
 			(font
@@ -13344,7 +13344,7 @@
 		)
 		(uuid "a9341ade-b44f-4836-99ce-91a6d1bb7de1")
 	)
-	(label "A3"
+	(label "A4"
 		(at 138.43 83.82 90)
 		(effects
 			(font
@@ -13444,7 +13444,7 @@
 		)
 		(uuid "b849f7c1-339f-4c27-be95-0ec852b76597")
 	)
-	(label "A4"
+	(label "A3"
 		(at 135.89 83.82 90)
 		(effects
 			(font
@@ -13504,7 +13504,7 @@
 		)
 		(uuid "c3b35bf2-f031-469f-8c5c-811f15ccb2be")
 	)
-	(label "D5"
+	(label "D2"
 		(at 184.15 83.82 90)
 		(effects
 			(font
@@ -13594,7 +13594,7 @@
 		)
 		(uuid "e262be7f-c184-4e48-8f67-59d08a17c1d5")
 	)
-	(label "D3"
+	(label "D4"
 		(at 189.23 83.82 90)
 		(effects
 			(font
@@ -13604,7 +13604,7 @@
 		)
 		(uuid "e73187c6-89ce-44ee-8897-e0927bf5672d")
 	)
-	(label "D1"
+	(label "D6"
 		(at 194.31 83.82 90)
 		(effects
 			(font
@@ -13654,7 +13654,7 @@
 		)
 		(uuid "f2a02d7d-9cc9-420b-96bb-1c2baecf35a0")
 	)
-	(label "D2"
+	(label "D5"
 		(at 191.77 83.82 90)
 		(effects
 			(font
@@ -13704,7 +13704,7 @@
 		)
 		(uuid "fc3e0850-953d-4339-84fb-0098f30a07ee")
 	)
-	(label "A6"
+	(label "A1"
 		(at 130.81 83.82 90)
 		(effects
 			(font
