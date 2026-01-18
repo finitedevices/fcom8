@@ -1,3 +1,9 @@
+[submodule "simulator/devdeps/emsdk"]
+	path = simulator/devdeps/emsdk
+	url = https://github.com/emscripten-core/emsdk.git
 [submodule "simulator/lib/vrEmu6502"]
 	path = simulator/lib/vrEmu6502
-	url = https://github.com/visrealm/vrEmu6502
+	url = https://github.com/visrealm/vrEmu6502.git
+[submodule "simulator/lib/vrEmu6522"]
+	path = simulator/lib/vrEmu6522
+	url = https://github.com/finitedevices/vrEmu6522.git

@@ -2587,10 +2587,15 @@ function checkIncomingModuleAPI() {
 
 // Imports from the Wasm binary.
 var ___getTypeName = makeInvalidEarlyAccess('___getTypeName');
+var _vrEmu6522Read = Module['_vrEmu6522Read'] = makeInvalidEarlyAccess('_vrEmu6522Read');
+var _vrEmu6522Write = Module['_vrEmu6522Write'] = makeInvalidEarlyAccess('_vrEmu6522Write');
 var _vrEmu6502New = Module['_vrEmu6502New'] = makeInvalidEarlyAccess('_vrEmu6502New');
+var _vrEmu6522New = Module['_vrEmu6522New'] = makeInvalidEarlyAccess('_vrEmu6522New');
 var _vrEmu6502Tick = Module['_vrEmu6502Tick'] = makeInvalidEarlyAccess('_vrEmu6502Tick');
-var _malloc = makeInvalidEarlyAccess('_malloc');
+var _vrEmu6522Tick = Module['_vrEmu6522Tick'] = makeInvalidEarlyAccess('_vrEmu6522Tick');
 var _vrEmu6502Reset = Module['_vrEmu6502Reset'] = makeInvalidEarlyAccess('_vrEmu6502Reset');
+var _vrEmu6522ReadDbg = Module['_vrEmu6522ReadDbg'] = makeInvalidEarlyAccess('_vrEmu6522ReadDbg');
+var _malloc = makeInvalidEarlyAccess('_malloc');
 var _vrEmu6502Destroy = Module['_vrEmu6502Destroy'] = makeInvalidEarlyAccess('_vrEmu6502Destroy');
 var _free = makeInvalidEarlyAccess('_free');
 var _vrEmu6502InstCycle = Module['_vrEmu6502InstCycle'] = makeInvalidEarlyAccess('_vrEmu6502InstCycle');
@@ -2610,6 +2615,10 @@ var _vrEmu6502GetOpcodeCycle = Module['_vrEmu6502GetOpcodeCycle'] = makeInvalidE
 var _vrEmu6502OpcodeToMnemonicStr = Module['_vrEmu6502OpcodeToMnemonicStr'] = makeInvalidEarlyAccess('_vrEmu6502OpcodeToMnemonicStr');
 var _vrEmu6502GetOpcodeAddrMode = Module['_vrEmu6502GetOpcodeAddrMode'] = makeInvalidEarlyAccess('_vrEmu6502GetOpcodeAddrMode');
 var _vrEmu6502DisassembleInstruction = Module['_vrEmu6502DisassembleInstruction'] = makeInvalidEarlyAccess('_vrEmu6502DisassembleInstruction');
+var _vrEmu6522Reset = Module['_vrEmu6522Reset'] = makeInvalidEarlyAccess('_vrEmu6522Reset');
+var _vrEmu6522Destroy = Module['_vrEmu6522Destroy'] = makeInvalidEarlyAccess('_vrEmu6522Destroy');
+var _vrEmu6522Ticks = Module['_vrEmu6522Ticks'] = makeInvalidEarlyAccess('_vrEmu6522Ticks');
+var _vrEmu6522Int = Module['_vrEmu6522Int'] = makeInvalidEarlyAccess('_vrEmu6522Int');
 var _fflush = makeInvalidEarlyAccess('_fflush');
 var _emscripten_stack_get_end = makeInvalidEarlyAccess('_emscripten_stack_get_end');
 var _emscripten_stack_get_base = makeInvalidEarlyAccess('_emscripten_stack_get_base');
@@ -2626,10 +2635,15 @@ var wasmTable = makeInvalidEarlyAccess('wasmTable');
 
 function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['__getTypeName'] != 'undefined', 'missing Wasm export: __getTypeName');
+  assert(typeof wasmExports['vrEmu6522Read'] != 'undefined', 'missing Wasm export: vrEmu6522Read');
+  assert(typeof wasmExports['vrEmu6522Write'] != 'undefined', 'missing Wasm export: vrEmu6522Write');
   assert(typeof wasmExports['vrEmu6502New'] != 'undefined', 'missing Wasm export: vrEmu6502New');
+  assert(typeof wasmExports['vrEmu6522New'] != 'undefined', 'missing Wasm export: vrEmu6522New');
   assert(typeof wasmExports['vrEmu6502Tick'] != 'undefined', 'missing Wasm export: vrEmu6502Tick');
-  assert(typeof wasmExports['malloc'] != 'undefined', 'missing Wasm export: malloc');
+  assert(typeof wasmExports['vrEmu6522Tick'] != 'undefined', 'missing Wasm export: vrEmu6522Tick');
   assert(typeof wasmExports['vrEmu6502Reset'] != 'undefined', 'missing Wasm export: vrEmu6502Reset');
+  assert(typeof wasmExports['vrEmu6522ReadDbg'] != 'undefined', 'missing Wasm export: vrEmu6522ReadDbg');
+  assert(typeof wasmExports['malloc'] != 'undefined', 'missing Wasm export: malloc');
   assert(typeof wasmExports['vrEmu6502Destroy'] != 'undefined', 'missing Wasm export: vrEmu6502Destroy');
   assert(typeof wasmExports['free'] != 'undefined', 'missing Wasm export: free');
   assert(typeof wasmExports['vrEmu6502InstCycle'] != 'undefined', 'missing Wasm export: vrEmu6502InstCycle');
@@ -2649,6 +2663,10 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['vrEmu6502OpcodeToMnemonicStr'] != 'undefined', 'missing Wasm export: vrEmu6502OpcodeToMnemonicStr');
   assert(typeof wasmExports['vrEmu6502GetOpcodeAddrMode'] != 'undefined', 'missing Wasm export: vrEmu6502GetOpcodeAddrMode');
   assert(typeof wasmExports['vrEmu6502DisassembleInstruction'] != 'undefined', 'missing Wasm export: vrEmu6502DisassembleInstruction');
+  assert(typeof wasmExports['vrEmu6522Reset'] != 'undefined', 'missing Wasm export: vrEmu6522Reset');
+  assert(typeof wasmExports['vrEmu6522Destroy'] != 'undefined', 'missing Wasm export: vrEmu6522Destroy');
+  assert(typeof wasmExports['vrEmu6522Ticks'] != 'undefined', 'missing Wasm export: vrEmu6522Ticks');
+  assert(typeof wasmExports['vrEmu6522Int'] != 'undefined', 'missing Wasm export: vrEmu6522Int');
   assert(typeof wasmExports['fflush'] != 'undefined', 'missing Wasm export: fflush');
   assert(typeof wasmExports['emscripten_stack_get_end'] != 'undefined', 'missing Wasm export: emscripten_stack_get_end');
   assert(typeof wasmExports['emscripten_stack_get_base'] != 'undefined', 'missing Wasm export: emscripten_stack_get_base');
@@ -2661,10 +2679,15 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['memory'] != 'undefined', 'missing Wasm export: memory');
   assert(typeof wasmExports['__indirect_function_table'] != 'undefined', 'missing Wasm export: __indirect_function_table');
   ___getTypeName = createExportWrapper('__getTypeName', 1);
+  _vrEmu6522Read = Module['_vrEmu6522Read'] = createExportWrapper('vrEmu6522Read', 2);
+  _vrEmu6522Write = Module['_vrEmu6522Write'] = createExportWrapper('vrEmu6522Write', 3);
   _vrEmu6502New = Module['_vrEmu6502New'] = createExportWrapper('vrEmu6502New', 3);
+  _vrEmu6522New = Module['_vrEmu6522New'] = createExportWrapper('vrEmu6522New', 1);
   _vrEmu6502Tick = Module['_vrEmu6502Tick'] = createExportWrapper('vrEmu6502Tick', 1);
-  _malloc = createExportWrapper('malloc', 1);
+  _vrEmu6522Tick = Module['_vrEmu6522Tick'] = createExportWrapper('vrEmu6522Tick', 1);
   _vrEmu6502Reset = Module['_vrEmu6502Reset'] = createExportWrapper('vrEmu6502Reset', 1);
+  _vrEmu6522ReadDbg = Module['_vrEmu6522ReadDbg'] = createExportWrapper('vrEmu6522ReadDbg', 2);
+  _malloc = createExportWrapper('malloc', 1);
   _vrEmu6502Destroy = Module['_vrEmu6502Destroy'] = createExportWrapper('vrEmu6502Destroy', 1);
   _free = createExportWrapper('free', 1);
   _vrEmu6502InstCycle = Module['_vrEmu6502InstCycle'] = createExportWrapper('vrEmu6502InstCycle', 1);
@@ -2684,6 +2707,10 @@ function assignWasmExports(wasmExports) {
   _vrEmu6502OpcodeToMnemonicStr = Module['_vrEmu6502OpcodeToMnemonicStr'] = createExportWrapper('vrEmu6502OpcodeToMnemonicStr', 2);
   _vrEmu6502GetOpcodeAddrMode = Module['_vrEmu6502GetOpcodeAddrMode'] = createExportWrapper('vrEmu6502GetOpcodeAddrMode', 2);
   _vrEmu6502DisassembleInstruction = Module['_vrEmu6502DisassembleInstruction'] = createExportWrapper('vrEmu6502DisassembleInstruction', 6);
+  _vrEmu6522Reset = Module['_vrEmu6522Reset'] = createExportWrapper('vrEmu6522Reset', 1);
+  _vrEmu6522Destroy = Module['_vrEmu6522Destroy'] = createExportWrapper('vrEmu6522Destroy', 1);
+  _vrEmu6522Ticks = Module['_vrEmu6522Ticks'] = createExportWrapper('vrEmu6522Ticks', 2);
+  _vrEmu6522Int = Module['_vrEmu6522Int'] = createExportWrapper('vrEmu6522Int', 1);
   _fflush = createExportWrapper('fflush', 1);
   _emscripten_stack_get_end = wasmExports['emscripten_stack_get_end'];
   _emscripten_stack_get_base = wasmExports['emscripten_stack_get_base'];
