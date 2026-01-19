@@ -63,9 +63,11 @@ void loop() {
         }
 
         if (active_instance->mode == MODE_CPU_RUN) {
-            for (unsigned int i = 0; i < 256; i++) {
+            for (unsigned int j = 0; j < 256; j++) {
                 vrEmu6502Tick(active_instance->cpu);
                 vrEmu6522Tick(active_instance->via);
+
+                *vrEmu6502Int(active_instance->cpu) = *vrEmu6522Int(active_instance->via);
             }
         }
     }
