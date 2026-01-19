@@ -100,9 +100,9 @@ function createInstance(id) {
 
     requestAnimationFrame(function render() {
         if (mode == "cpuRun" && Module.getCustomLed(id)) {
-            document.querySelector(".led.custom").classList.add("on");
+            instance.querySelector(".led.custom").classList.add("on");
         } else {
-            document.querySelector(".led.custom").classList.remove("on");
+            instance.querySelector(".led.custom").classList.remove("on");
         }
 
         requestAnimationFrame(render);
