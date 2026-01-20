@@ -55,9 +55,9 @@ class Instance {
             </fieldset>
             <fieldset class="mode">
                 <legend>Mode</legend>
-                <input type="radio" title="CPU run" name="mode" value="cpuRun" aria-label="CPU run">
-                <input type="radio" title="Off" name="mode" value="off" checked aria-label="Off">
-                <input type="radio" title="RAM write" name="mode" value="ramWrite" aria-label="RAM write">
+                <input type="radio" title="CPU run" name="mode${id}" value="cpuRun" aria-label="CPU run">
+                <input type="radio" title="Off" name="mode${id}" value="off" checked aria-label="Off">
+                <input type="radio" title="RAM write" name="mode${id}" value="ramWrite" aria-label="RAM write">
             </fieldset>
             <div class="led cpuRun"></div>
             <div class="led ramWrite"></div>
@@ -72,7 +72,7 @@ class Instance {
 
         element.querySelectorAll(".mode input").forEach(function(modeState) {
             modeState.addEventListener("change", function() {
-                thisScope.mode = document.querySelector(".mode input:checked").value;
+                thisScope.mode = element.querySelector(".mode input:checked").value;
 
                 if (thisScope.mode == "ramWrite") {
                     thisScope.mode = "off";
@@ -197,8 +197,6 @@ function applyProperties(id) {
         loadCode(id, buffer, 0xFF00, bytes.length);
 
         Module._free(buffer);
-
-        document.querySelector("#loadCode").checked = false;
     }
 }
 
@@ -208,23 +206,25 @@ function renderLcdBitmap(id, buffer) {
 
 Module.onRuntimeInitialized = function() {
     console.log("Runtime initialised");
-
+    
     Module.setup();
-
+    
     for (var i = 0; i < INSTANCES; i++) {
         instances.push(new Instance(i));
     }
-
+    
     document.querySelector("#codeInput").addEventListener("input", function() {
         document.querySelector("#loadCode").checked = true;
     });
-
+    
     document.querySelector("#applyButton").addEventListener("click", function() {
         for (var i = 0; i < INSTANCES; i++) {
             if (document.getElementById(`applyInstance${i}`).checked) {
                 applyProperties(i);
             }
         }
+
+        document.querySelector("#loadCode").checked = false;
     });
 
     requestAnimationFrame(function render() {
