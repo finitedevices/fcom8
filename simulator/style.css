@@ -91,7 +91,7 @@ textarea {
     width: 94mm;
     height: 127mm;
     flex-shrink: 0;
-    background-color: #ff9933;
+    background-color: #ee8822;
 }
 
 .instance::before {
@@ -101,6 +101,49 @@ textarea {
     color: #444444;
     transform: translateX(-50%);
     content: "Instance " attr(data-instanceid);
+}
+
+.display {
+    position: relative;
+    left: -2mm;
+    width: 98mm;
+    height: 60mm;
+    background-color: #336633;
+}
+
+.display::before {
+    position: absolute;
+    top: 10mm;
+    left: 1mm;
+    width: 96mm;
+    height: 39mm;
+    background-color: #222222;
+    border-radius: 2mm;
+    content: "";
+}
+
+.display::after {
+    position: absolute;
+    top: 17mm;
+    left: 11mm;
+    width: 77mm;
+    height: 25mm;
+    background-color: #1111aa;
+    border-radius: 1mm;
+    content: "";
+}
+
+.instance[data-mode="cpuRun"] .display::after {
+    background-color: #3333ff;
+}
+
+.display canvas {
+    position: absolute;
+    top: 19mm;
+    left: 14mm;
+    width: 71mm;
+    height: 21mm;
+    z-index: 1;
 }
 
 .dips {
@@ -147,6 +190,7 @@ textarea {
     margin-inline: 0.75mm;
     appearance: none;
     background-color: grey;
+    cursor: pointer;
 }
 
 .dips input::before {
@@ -248,6 +292,7 @@ textarea {
     height: 100%;
     margin: 0;
     appearance: none;
+    cursor: pointer;
 }
 
 .led {

@@ -482,7 +482,7 @@ function updateMemoryViews() {
   var b = wasmMemory.buffer;
   HEAP8 = new Int8Array(b);
   HEAP16 = new Int16Array(b);
-  HEAPU8 = new Uint8Array(b);
+  Module['HEAPU8'] = HEAPU8 = new Uint8Array(b);
   HEAPU16 = new Uint16Array(b);
   HEAP32 = new Int32Array(b);
   HEAPU32 = new Uint32Array(b);
@@ -1963,6 +1963,41 @@ async function createWasm() {
       });
     };
 
+  var _emscripten_get_now = () => performance.now();
+  
+  var _emscripten_date_now = () => Date.now();
+  
+  var nowIsMonotonic = 1;
+  
+  var checkWasiClock = (clock_id) => clock_id >= 0 && clock_id <= 3;
+  
+  var INT53_MAX = 9007199254740992;
+  
+  var INT53_MIN = -9007199254740992;
+  var bigintToI53Checked = (num) => (num < INT53_MIN || num > INT53_MAX) ? NaN : Number(num);
+  function _clock_time_get(clk_id, ignored_precision, ptime) {
+    ignored_precision = bigintToI53Checked(ignored_precision);
+  
+  
+      if (!checkWasiClock(clk_id)) {
+        return 28;
+      }
+      var now;
+      // all wasi clocks but realtime are monotonic
+      if (clk_id === 0) {
+        now = _emscripten_date_now();
+      } else if (nowIsMonotonic) {
+        now = _emscripten_get_now();
+      } else {
+        return 52;
+      }
+      // "now" is in ms, and wasi times are in ns.
+      var nsec = Math.round(now * 1000 * 1000);
+      HEAP64[((ptime)>>3)] = BigInt(nsec);
+      return 0;
+    ;
+  }
+
   var abortOnCannotGrowMemory = (requestedSize) => {
       abort(`Cannot enlarge memory arrays to size ${requestedSize} bytes (OOM). Either (1) compile with -sINITIAL_MEMORY=X with X higher than the current value ${HEAP8.length}, (2) compile with -sALLOW_MEMORY_GROWTH which allows increasing the size at runtime, or (3) if you want malloc to return NULL (0) instead of this abort, compile with -sABORTING_MALLOC=0`);
     };
@@ -1984,10 +2019,6 @@ async function createWasm() {
       abort('fd_close called without SYSCALLS_REQUIRE_FILESYSTEM');
     };
 
-  var INT53_MAX = 9007199254740992;
-  
-  var INT53_MIN = -9007199254740992;
-  var bigintToI53Checked = (num) => (num < INT53_MIN || num > INT53_MAX) ? NaN : Number(num);
   function _fd_seek(fd, offset, whence, newOffset) {
     offset = bigintToI53Checked(offset);
   
@@ -2031,6 +2062,96 @@ async function createWasm() {
       }
       HEAPU32[((pnum)>>2)] = num;
       return 0;
+    };
+
+  var getCFunc = (ident) => {
+      var func = Module['_' + ident]; // closure exported function
+      assert(func, 'Cannot call unknown function ' + ident + ', make sure it is exported');
+      return func;
+    };
+  
+  var writeArrayToMemory = (array, buffer) => {
+      assert(array.length >= 0, 'writeArrayToMemory array must have a length (should be an array or typed array)')
+      HEAP8.set(array, buffer);
+    };
+  
+  
+  
+  var stackAlloc = (sz) => __emscripten_stack_alloc(sz);
+  var stringToUTF8OnStack = (str) => {
+      var size = lengthBytesUTF8(str) + 1;
+      var ret = stackAlloc(size);
+      stringToUTF8(str, ret, size);
+      return ret;
+    };
+  
+  
+  
+  
+  
+    /**
+     * @param {string|null=} returnType
+     * @param {Array=} argTypes
+     * @param {Array=} args
+     * @param {Object=} opts
+     */
+  var ccall = (ident, returnType, argTypes, args, opts) => {
+      // For fast lookup of conversion functions
+      var toC = {
+        'string': (str) => {
+          var ret = 0;
+          if (str !== null && str !== undefined && str !== 0) { // null string
+            ret = stringToUTF8OnStack(str);
+          }
+          return ret;
+        },
+        'array': (arr) => {
+          var ret = stackAlloc(arr.length);
+          writeArrayToMemory(arr, ret);
+          return ret;
+        }
+      };
+  
+      function convertReturnValue(ret) {
+        if (returnType === 'string') {
+          return UTF8ToString(ret);
+        }
+        if (returnType === 'boolean') return Boolean(ret);
+        return ret;
+      }
+  
+      var func = getCFunc(ident);
+      var cArgs = [];
+      var stack = 0;
+      assert(returnType !== 'array', 'Return type should not be "array".');
+      if (args) {
+        for (var i = 0; i < args.length; i++) {
+          var converter = toC[argTypes[i]];
+          if (converter) {
+            if (stack === 0) stack = stackSave();
+            cArgs[i] = converter(args[i]);
+          } else {
+            cArgs[i] = args[i];
+          }
+        }
+      }
+      var ret = func(...cArgs);
+      function onDone(ret) {
+        if (stack !== 0) stackRestore(stack);
+        return convertReturnValue(ret);
+      }
+  
+      ret = onDone(ret);
+      return ret;
+    };
+  
+    /**
+     * @param {string=} returnType
+     * @param {Array=} argTypes
+     * @param {Object=} opts
+     */
+  var cwrap = (ident, returnType, argTypes, opts) => {
+      return (...args) => ccall(ident, returnType, argTypes, args, opts);
     };
 assert(emval_handles.length === 5 * 2);
 // End JS library code
@@ -2083,6 +2204,7 @@ Module['FS_createPreloadedFile'] = FS.createPreloadedFile;
 }
 
 // Begin runtime exports
+  Module['cwrap'] = cwrap;
   var missingLibrarySymbols = [
   'writeI53ToI64',
   'writeI53ToI64Clamped',
@@ -2094,7 +2216,6 @@ Module['FS_createPreloadedFile'] = FS.createPreloadedFile;
   'convertI32PairToI53',
   'convertI32PairToI53Checked',
   'convertU32PairToI53',
-  'stackAlloc',
   'getTempRet0',
   'setTempRet0',
   'zeroMemory',
@@ -2135,8 +2256,6 @@ Module['FS_createPreloadedFile'] = FS.createPreloadedFile;
   'STACK_ALIGN',
   'POINTER_SIZE',
   'ASSERTIONS',
-  'ccall',
-  'cwrap',
   'convertJsFunctionToWasm',
   'getEmptyTableSlot',
   'updateTableMap',
@@ -2147,8 +2266,6 @@ Module['FS_createPreloadedFile'] = FS.createPreloadedFile;
   'intArrayToString',
   'stringToAscii',
   'stringToNewUTF8',
-  'stringToUTF8OnStack',
-  'writeArrayToMemory',
   'registerKeyEventCallback',
   'maybeCStringToJsString',
   'findEventTarget',
@@ -2193,7 +2310,6 @@ Module['FS_createPreloadedFile'] = FS.createPreloadedFile;
   'getCallstack',
   'convertPCtoSourceLocation',
   'getEnvStrings',
-  'checkWasiClock',
   'wasiRightsToMuslOFlags',
   'wasiOFlagsToMuslOFlags',
   'initRandomFill',
@@ -2310,7 +2426,6 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'HEAPF32',
   'HEAPF64',
   'HEAP8',
-  'HEAPU8',
   'HEAP16',
   'HEAPU16',
   'HEAP32',
@@ -2324,6 +2439,7 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'bigintToI53Checked',
   'stackSave',
   'stackRestore',
+  'stackAlloc',
   'createNamedFunction',
   'ptrToString',
   'abortOnCannotGrowMemory',
@@ -2342,6 +2458,7 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'removeRunDependency',
   'addOnPreRun',
   'addOnPostRun',
+  'ccall',
   'freeTableIndexes',
   'functionsInTableMap',
   'setValue',
@@ -2362,6 +2479,8 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'UTF32ToString',
   'stringToUTF32',
   'lengthBytesUTF32',
+  'stringToUTF8OnStack',
+  'writeArrayToMemory',
   'JSEvents',
   'specialHTMLTargets',
   'findCanvasEventTarget',
@@ -2369,6 +2488,7 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'restoreOldWindowedStyle',
   'UNWIND_CACHE',
   'ExitStatus',
+  'checkWasiClock',
   'flush_NO_FILESYSTEM',
   'emSetImmediate',
   'emClearImmediate_deps',
@@ -2584,22 +2704,32 @@ unexportedSymbols.forEach(unexportedRuntimeSymbol);
 function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
+function send_lcd_bitmap(instance,data,size) { renderLcdBitmap(instance, new Uint8ClampedArray(HEAPU8.buffer.slice(data), 0, size)); }
 
 // Imports from the Wasm binary.
 var ___getTypeName = makeInvalidEarlyAccess('___getTypeName');
 var _vrEmu6522Read = Module['_vrEmu6522Read'] = makeInvalidEarlyAccess('_vrEmu6522Read');
+var _vrEmu6522ReadDbg = Module['_vrEmu6522ReadDbg'] = makeInvalidEarlyAccess('_vrEmu6522ReadDbg');
 var _vrEmu6522Write = Module['_vrEmu6522Write'] = makeInvalidEarlyAccess('_vrEmu6522Write');
+var _vrEmuLcdReadByteNoInc = Module['_vrEmuLcdReadByteNoInc'] = makeInvalidEarlyAccess('_vrEmuLcdReadByteNoInc');
+var _vrEmuLcdSendCommand = Module['_vrEmuLcdSendCommand'] = makeInvalidEarlyAccess('_vrEmuLcdSendCommand');
+var _vrEmuLcdWriteByte = Module['_vrEmuLcdWriteByte'] = makeInvalidEarlyAccess('_vrEmuLcdWriteByte');
 var _vrEmu6502New = Module['_vrEmu6502New'] = makeInvalidEarlyAccess('_vrEmu6502New');
 var _vrEmu6522New = Module['_vrEmu6522New'] = makeInvalidEarlyAccess('_vrEmu6522New');
+var _vrEmuLcdNew = Module['_vrEmuLcdNew'] = makeInvalidEarlyAccess('_vrEmuLcdNew');
 var _vrEmu6502Tick = Module['_vrEmu6502Tick'] = makeInvalidEarlyAccess('_vrEmu6502Tick');
 var _vrEmu6522Tick = Module['_vrEmu6522Tick'] = makeInvalidEarlyAccess('_vrEmu6522Tick');
 var _vrEmu6522Int = Module['_vrEmu6522Int'] = makeInvalidEarlyAccess('_vrEmu6522Int');
 var _vrEmu6502Int = Module['_vrEmu6502Int'] = makeInvalidEarlyAccess('_vrEmu6502Int');
+var _vrEmuLcdUpdatePixels = Module['_vrEmuLcdUpdatePixels'] = makeInvalidEarlyAccess('_vrEmuLcdUpdatePixels');
+var _vrEmuLcdPixelState = Module['_vrEmuLcdPixelState'] = makeInvalidEarlyAccess('_vrEmuLcdPixelState');
 var _vrEmu6502Reset = Module['_vrEmu6502Reset'] = makeInvalidEarlyAccess('_vrEmu6502Reset');
-var _vrEmu6522ReadDbg = Module['_vrEmu6522ReadDbg'] = makeInvalidEarlyAccess('_vrEmu6522ReadDbg');
-var _malloc = makeInvalidEarlyAccess('_malloc');
+var _vrEmu6522Reset = Module['_vrEmu6522Reset'] = makeInvalidEarlyAccess('_vrEmu6522Reset');
+var _vrEmuLcdDestroy = Module['_vrEmuLcdDestroy'] = makeInvalidEarlyAccess('_vrEmuLcdDestroy');
+var _load_code = Module['_load_code'] = makeInvalidEarlyAccess('_load_code');
+var _malloc = Module['_malloc'] = makeInvalidEarlyAccess('_malloc');
 var _vrEmu6502Destroy = Module['_vrEmu6502Destroy'] = makeInvalidEarlyAccess('_vrEmu6502Destroy');
-var _free = makeInvalidEarlyAccess('_free');
+var _free = Module['_free'] = makeInvalidEarlyAccess('_free');
 var _vrEmu6502InstCycle = Module['_vrEmu6502InstCycle'] = makeInvalidEarlyAccess('_vrEmu6502InstCycle');
 var _vrEmu6502Nmi = Module['_vrEmu6502Nmi'] = makeInvalidEarlyAccess('_vrEmu6502Nmi');
 var _vrEmu6502GetPC = Module['_vrEmu6502GetPC'] = makeInvalidEarlyAccess('_vrEmu6502GetPC');
@@ -2616,9 +2746,16 @@ var _vrEmu6502GetOpcodeCycle = Module['_vrEmu6502GetOpcodeCycle'] = makeInvalidE
 var _vrEmu6502OpcodeToMnemonicStr = Module['_vrEmu6502OpcodeToMnemonicStr'] = makeInvalidEarlyAccess('_vrEmu6502OpcodeToMnemonicStr');
 var _vrEmu6502GetOpcodeAddrMode = Module['_vrEmu6502GetOpcodeAddrMode'] = makeInvalidEarlyAccess('_vrEmu6502GetOpcodeAddrMode');
 var _vrEmu6502DisassembleInstruction = Module['_vrEmu6502DisassembleInstruction'] = makeInvalidEarlyAccess('_vrEmu6502DisassembleInstruction');
-var _vrEmu6522Reset = Module['_vrEmu6522Reset'] = makeInvalidEarlyAccess('_vrEmu6522Reset');
 var _vrEmu6522Destroy = Module['_vrEmu6522Destroy'] = makeInvalidEarlyAccess('_vrEmu6522Destroy');
 var _vrEmu6522Ticks = Module['_vrEmu6522Ticks'] = makeInvalidEarlyAccess('_vrEmu6522Ticks');
+var _vrEmuLcdGetDataOffset = Module['_vrEmuLcdGetDataOffset'] = makeInvalidEarlyAccess('_vrEmuLcdGetDataOffset');
+var _vrEmuLcdCharBits = Module['_vrEmuLcdCharBits'] = makeInvalidEarlyAccess('_vrEmuLcdCharBits');
+var _vrEmuLcdReadByte = Module['_vrEmuLcdReadByte'] = makeInvalidEarlyAccess('_vrEmuLcdReadByte');
+var _vrEmuLcdReadAddress = Module['_vrEmuLcdReadAddress'] = makeInvalidEarlyAccess('_vrEmuLcdReadAddress');
+var _vrEmuLcdWriteString = Module['_vrEmuLcdWriteString'] = makeInvalidEarlyAccess('_vrEmuLcdWriteString');
+var _vrEmuLcdNumPixels = Module['_vrEmuLcdNumPixels'] = makeInvalidEarlyAccess('_vrEmuLcdNumPixels');
+var _vrEmuLcdNumPixelsX = Module['_vrEmuLcdNumPixelsX'] = makeInvalidEarlyAccess('_vrEmuLcdNumPixelsX');
+var _vrEmuLcdNumPixelsY = Module['_vrEmuLcdNumPixelsY'] = makeInvalidEarlyAccess('_vrEmuLcdNumPixelsY');
 var _fflush = makeInvalidEarlyAccess('_fflush');
 var _emscripten_stack_get_end = makeInvalidEarlyAccess('_emscripten_stack_get_end');
 var _emscripten_stack_get_base = makeInvalidEarlyAccess('_emscripten_stack_get_base');
@@ -2636,15 +2773,24 @@ var wasmTable = makeInvalidEarlyAccess('wasmTable');
 function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['__getTypeName'] != 'undefined', 'missing Wasm export: __getTypeName');
   assert(typeof wasmExports['vrEmu6522Read'] != 'undefined', 'missing Wasm export: vrEmu6522Read');
+  assert(typeof wasmExports['vrEmu6522ReadDbg'] != 'undefined', 'missing Wasm export: vrEmu6522ReadDbg');
   assert(typeof wasmExports['vrEmu6522Write'] != 'undefined', 'missing Wasm export: vrEmu6522Write');
+  assert(typeof wasmExports['vrEmuLcdReadByteNoInc'] != 'undefined', 'missing Wasm export: vrEmuLcdReadByteNoInc');
+  assert(typeof wasmExports['vrEmuLcdSendCommand'] != 'undefined', 'missing Wasm export: vrEmuLcdSendCommand');
+  assert(typeof wasmExports['vrEmuLcdWriteByte'] != 'undefined', 'missing Wasm export: vrEmuLcdWriteByte');
   assert(typeof wasmExports['vrEmu6502New'] != 'undefined', 'missing Wasm export: vrEmu6502New');
   assert(typeof wasmExports['vrEmu6522New'] != 'undefined', 'missing Wasm export: vrEmu6522New');
+  assert(typeof wasmExports['vrEmuLcdNew'] != 'undefined', 'missing Wasm export: vrEmuLcdNew');
   assert(typeof wasmExports['vrEmu6502Tick'] != 'undefined', 'missing Wasm export: vrEmu6502Tick');
   assert(typeof wasmExports['vrEmu6522Tick'] != 'undefined', 'missing Wasm export: vrEmu6522Tick');
   assert(typeof wasmExports['vrEmu6522Int'] != 'undefined', 'missing Wasm export: vrEmu6522Int');
   assert(typeof wasmExports['vrEmu6502Int'] != 'undefined', 'missing Wasm export: vrEmu6502Int');
+  assert(typeof wasmExports['vrEmuLcdUpdatePixels'] != 'undefined', 'missing Wasm export: vrEmuLcdUpdatePixels');
+  assert(typeof wasmExports['vrEmuLcdPixelState'] != 'undefined', 'missing Wasm export: vrEmuLcdPixelState');
   assert(typeof wasmExports['vrEmu6502Reset'] != 'undefined', 'missing Wasm export: vrEmu6502Reset');
-  assert(typeof wasmExports['vrEmu6522ReadDbg'] != 'undefined', 'missing Wasm export: vrEmu6522ReadDbg');
+  assert(typeof wasmExports['vrEmu6522Reset'] != 'undefined', 'missing Wasm export: vrEmu6522Reset');
+  assert(typeof wasmExports['vrEmuLcdDestroy'] != 'undefined', 'missing Wasm export: vrEmuLcdDestroy');
+  assert(typeof wasmExports['load_code'] != 'undefined', 'missing Wasm export: load_code');
   assert(typeof wasmExports['malloc'] != 'undefined', 'missing Wasm export: malloc');
   assert(typeof wasmExports['vrEmu6502Destroy'] != 'undefined', 'missing Wasm export: vrEmu6502Destroy');
   assert(typeof wasmExports['free'] != 'undefined', 'missing Wasm export: free');
@@ -2664,9 +2810,16 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['vrEmu6502OpcodeToMnemonicStr'] != 'undefined', 'missing Wasm export: vrEmu6502OpcodeToMnemonicStr');
   assert(typeof wasmExports['vrEmu6502GetOpcodeAddrMode'] != 'undefined', 'missing Wasm export: vrEmu6502GetOpcodeAddrMode');
   assert(typeof wasmExports['vrEmu6502DisassembleInstruction'] != 'undefined', 'missing Wasm export: vrEmu6502DisassembleInstruction');
-  assert(typeof wasmExports['vrEmu6522Reset'] != 'undefined', 'missing Wasm export: vrEmu6522Reset');
   assert(typeof wasmExports['vrEmu6522Destroy'] != 'undefined', 'missing Wasm export: vrEmu6522Destroy');
   assert(typeof wasmExports['vrEmu6522Ticks'] != 'undefined', 'missing Wasm export: vrEmu6522Ticks');
+  assert(typeof wasmExports['vrEmuLcdGetDataOffset'] != 'undefined', 'missing Wasm export: vrEmuLcdGetDataOffset');
+  assert(typeof wasmExports['vrEmuLcdCharBits'] != 'undefined', 'missing Wasm export: vrEmuLcdCharBits');
+  assert(typeof wasmExports['vrEmuLcdReadByte'] != 'undefined', 'missing Wasm export: vrEmuLcdReadByte');
+  assert(typeof wasmExports['vrEmuLcdReadAddress'] != 'undefined', 'missing Wasm export: vrEmuLcdReadAddress');
+  assert(typeof wasmExports['vrEmuLcdWriteString'] != 'undefined', 'missing Wasm export: vrEmuLcdWriteString');
+  assert(typeof wasmExports['vrEmuLcdNumPixels'] != 'undefined', 'missing Wasm export: vrEmuLcdNumPixels');
+  assert(typeof wasmExports['vrEmuLcdNumPixelsX'] != 'undefined', 'missing Wasm export: vrEmuLcdNumPixelsX');
+  assert(typeof wasmExports['vrEmuLcdNumPixelsY'] != 'undefined', 'missing Wasm export: vrEmuLcdNumPixelsY');
   assert(typeof wasmExports['fflush'] != 'undefined', 'missing Wasm export: fflush');
   assert(typeof wasmExports['emscripten_stack_get_end'] != 'undefined', 'missing Wasm export: emscripten_stack_get_end');
   assert(typeof wasmExports['emscripten_stack_get_base'] != 'undefined', 'missing Wasm export: emscripten_stack_get_base');
@@ -2680,18 +2833,27 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['__indirect_function_table'] != 'undefined', 'missing Wasm export: __indirect_function_table');
   ___getTypeName = createExportWrapper('__getTypeName', 1);
   _vrEmu6522Read = Module['_vrEmu6522Read'] = createExportWrapper('vrEmu6522Read', 2);
+  _vrEmu6522ReadDbg = Module['_vrEmu6522ReadDbg'] = createExportWrapper('vrEmu6522ReadDbg', 2);
   _vrEmu6522Write = Module['_vrEmu6522Write'] = createExportWrapper('vrEmu6522Write', 3);
+  _vrEmuLcdReadByteNoInc = Module['_vrEmuLcdReadByteNoInc'] = createExportWrapper('vrEmuLcdReadByteNoInc', 1);
+  _vrEmuLcdSendCommand = Module['_vrEmuLcdSendCommand'] = createExportWrapper('vrEmuLcdSendCommand', 2);
+  _vrEmuLcdWriteByte = Module['_vrEmuLcdWriteByte'] = createExportWrapper('vrEmuLcdWriteByte', 2);
   _vrEmu6502New = Module['_vrEmu6502New'] = createExportWrapper('vrEmu6502New', 3);
   _vrEmu6522New = Module['_vrEmu6522New'] = createExportWrapper('vrEmu6522New', 1);
+  _vrEmuLcdNew = Module['_vrEmuLcdNew'] = createExportWrapper('vrEmuLcdNew', 3);
   _vrEmu6502Tick = Module['_vrEmu6502Tick'] = createExportWrapper('vrEmu6502Tick', 1);
   _vrEmu6522Tick = Module['_vrEmu6522Tick'] = createExportWrapper('vrEmu6522Tick', 1);
   _vrEmu6522Int = Module['_vrEmu6522Int'] = createExportWrapper('vrEmu6522Int', 1);
   _vrEmu6502Int = Module['_vrEmu6502Int'] = createExportWrapper('vrEmu6502Int', 1);
+  _vrEmuLcdUpdatePixels = Module['_vrEmuLcdUpdatePixels'] = createExportWrapper('vrEmuLcdUpdatePixels', 1);
+  _vrEmuLcdPixelState = Module['_vrEmuLcdPixelState'] = createExportWrapper('vrEmuLcdPixelState', 3);
   _vrEmu6502Reset = Module['_vrEmu6502Reset'] = createExportWrapper('vrEmu6502Reset', 1);
-  _vrEmu6522ReadDbg = Module['_vrEmu6522ReadDbg'] = createExportWrapper('vrEmu6522ReadDbg', 2);
-  _malloc = createExportWrapper('malloc', 1);
+  _vrEmu6522Reset = Module['_vrEmu6522Reset'] = createExportWrapper('vrEmu6522Reset', 1);
+  _vrEmuLcdDestroy = Module['_vrEmuLcdDestroy'] = createExportWrapper('vrEmuLcdDestroy', 1);
+  _load_code = Module['_load_code'] = createExportWrapper('load_code', 4);
+  _malloc = Module['_malloc'] = createExportWrapper('malloc', 1);
   _vrEmu6502Destroy = Module['_vrEmu6502Destroy'] = createExportWrapper('vrEmu6502Destroy', 1);
-  _free = createExportWrapper('free', 1);
+  _free = Module['_free'] = createExportWrapper('free', 1);
   _vrEmu6502InstCycle = Module['_vrEmu6502InstCycle'] = createExportWrapper('vrEmu6502InstCycle', 1);
   _vrEmu6502Nmi = Module['_vrEmu6502Nmi'] = createExportWrapper('vrEmu6502Nmi', 1);
   _vrEmu6502GetPC = Module['_vrEmu6502GetPC'] = createExportWrapper('vrEmu6502GetPC', 1);
@@ -2708,9 +2870,16 @@ function assignWasmExports(wasmExports) {
   _vrEmu6502OpcodeToMnemonicStr = Module['_vrEmu6502OpcodeToMnemonicStr'] = createExportWrapper('vrEmu6502OpcodeToMnemonicStr', 2);
   _vrEmu6502GetOpcodeAddrMode = Module['_vrEmu6502GetOpcodeAddrMode'] = createExportWrapper('vrEmu6502GetOpcodeAddrMode', 2);
   _vrEmu6502DisassembleInstruction = Module['_vrEmu6502DisassembleInstruction'] = createExportWrapper('vrEmu6502DisassembleInstruction', 6);
-  _vrEmu6522Reset = Module['_vrEmu6522Reset'] = createExportWrapper('vrEmu6522Reset', 1);
   _vrEmu6522Destroy = Module['_vrEmu6522Destroy'] = createExportWrapper('vrEmu6522Destroy', 1);
   _vrEmu6522Ticks = Module['_vrEmu6522Ticks'] = createExportWrapper('vrEmu6522Ticks', 2);
+  _vrEmuLcdGetDataOffset = Module['_vrEmuLcdGetDataOffset'] = createExportWrapper('vrEmuLcdGetDataOffset', 3);
+  _vrEmuLcdCharBits = Module['_vrEmuLcdCharBits'] = createExportWrapper('vrEmuLcdCharBits', 2);
+  _vrEmuLcdReadByte = Module['_vrEmuLcdReadByte'] = createExportWrapper('vrEmuLcdReadByte', 1);
+  _vrEmuLcdReadAddress = Module['_vrEmuLcdReadAddress'] = createExportWrapper('vrEmuLcdReadAddress', 1);
+  _vrEmuLcdWriteString = Module['_vrEmuLcdWriteString'] = createExportWrapper('vrEmuLcdWriteString', 2);
+  _vrEmuLcdNumPixels = Module['_vrEmuLcdNumPixels'] = createExportWrapper('vrEmuLcdNumPixels', 3);
+  _vrEmuLcdNumPixelsX = Module['_vrEmuLcdNumPixelsX'] = createExportWrapper('vrEmuLcdNumPixelsX', 1);
+  _vrEmuLcdNumPixelsY = Module['_vrEmuLcdNumPixelsY'] = createExportWrapper('vrEmuLcdNumPixelsY', 1);
   _fflush = createExportWrapper('fflush', 1);
   _emscripten_stack_get_end = wasmExports['emscripten_stack_get_end'];
   _emscripten_stack_get_base = wasmExports['emscripten_stack_get_base'];
@@ -2750,13 +2919,17 @@ var wasmImports = {
   /** @export */
   _embind_register_void: __embind_register_void,
   /** @export */
+  clock_time_get: _clock_time_get,
+  /** @export */
   emscripten_resize_heap: _emscripten_resize_heap,
   /** @export */
   fd_close: _fd_close,
   /** @export */
   fd_seek: _fd_seek,
   /** @export */
-  fd_write: _fd_write
+  fd_write: _fd_write,
+  /** @export */
+  send_lcd_bitmap
 };
 
 

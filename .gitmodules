@@ -7,3 +7,6 @@
 [submodule "simulator/lib/vrEmu6522"]
 	path = simulator/lib/vrEmu6522
 	url = https://github.com/finitedevices/vrEmu6522.git
+[submodule "simulator/lib/vrEmuLcd"]
+	path = simulator/lib/vrEmuLcd
+	url = https://github.com/finitedevices/vrEmuLcd.git

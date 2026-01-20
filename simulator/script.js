@@ -6,69 +6,119 @@ const SYSTEM_DIPS = [
 ];
 
 const INSTANCES = 4;
+const LCD_WIDTH = (20 * 6) - 1;
+const LCD_HEIGHT = (4 * 9) - 1;
+const LCD_PIXELS_PER_DOT = 3;
 
-function createInstanceApplyCheckbox(id) {
-    var container = document.createElement("div");
-    var checkbox = document.createElement("input");
-    var label = document.createElement("label");
+var instances = [];
+var displayContexts = {};
 
-    checkbox.type = "checkbox";
-    checkbox.id = `applyInstance${id}`;
-    checkbox.checked = id == 0;
+class Instance {
+    constructor(id) {
+        var thisScope = this;
 
-    label.htmlFor = checkbox.id;
-    label.textContent = id;
+        this.id = id;
+        this._mode = null;
 
-    container.append(checkbox);
-    container.append(label);
+        var element = this.element = document.createElement("div");
+        var displayCanvas = this.displayCanvas = document.createElement("canvas");
+        var displayContext = this.displayContext = displayCanvas.getContext("2d");
 
-    return container;
-}
+        element.id = `instance${id}`;
+        element.className = "instance";
+        element.hidden = id != 0;
 
-function createInstance(id) {
-    var instance = document.createElement("div");
-    var mode = "off";
+        element.setAttribute("data-instanceid", id);
 
-    instance.id = `instance${id}`;
-    instance.className = "instance";
-    instance.hidden = id != 0;
+        displayCanvas.width = LCD_WIDTH * LCD_PIXELS_PER_DOT;
+        displayCanvas.height = LCD_HEIGHT * LCD_PIXELS_PER_DOT;
 
-    instance.setAttribute("data-instanceid", id);
+        element.innerHTML = `
+            <div class="display"></div>
+            <fieldset class="dips system">
+                <legend>System DIPs</legend>
+                ${SYSTEM_DIPS.map((dip, i) => `
+                    <input type="checkbox" title="${dip.name}" class="${dip.class}" aria-label="${dip.name}" dip-pos="${i + 1}">
+                `).join("")}
+            </fieldset>
+            <fieldset class="dips addr">
+                <legend>Address DIPs</legend>
+                ${[...Array(8).keys()].reverse().map((i) => `
+                    <input type="checkbox" title="${2 ** i}" aria-label="${2 ** i}" dip-pos="${8 - i}">
+                `).join("")}
+            </fieldset>
+            <fieldset class="dips data">
+                <legend>Data DIPs</legend>
+                ${[...Array(8).keys()].reverse().map((i) => `
+                    <input type="checkbox" title="${2 ** i}" aria-label="${2 ** i}" dip-pos="${8 - i}">
+                `).join("")}
+            </fieldset>
+            <fieldset class="mode">
+                <legend>Mode</legend>
+                <input type="radio" title="CPU run" name="mode" value="cpuRun" aria-label="CPU run">
+                <input type="radio" title="Off" name="mode" value="off" checked aria-label="Off">
+                <input type="radio" title="RAM write" name="mode" value="ramWrite" aria-label="RAM write">
+            </fieldset>
+            <div class="led cpuRun"></div>
+            <div class="led ramWrite"></div>
+            <div class="led custom"></div>
+        `;
 
-    instance.innerHTML = `
-        <fieldset class="dips system">
-            <legend>System DIPs</legend>
-            ${SYSTEM_DIPS.map((dip, i) => `
-                <input type="checkbox" title="${dip.name}" class="${dip.class}" aria-label="${dip.name}" dip-pos="${i + 1}">
-            `).join("")}
-        </fieldset>
-        <fieldset class="dips addr">
-            <legend>Address DIPs</legend>
-            ${[...Array(8).keys()].reverse().map((i) => `
-                <input type="checkbox" title="${2 ** i}" aria-label="${2 ** i}" dip-pos="${8 - i}">
-            `).join("")}
-        </fieldset>
-        <fieldset class="dips data">
-            <legend>Data DIPs</legend>
-            ${[...Array(8).keys()].reverse().map((i) => `
-                <input type="checkbox" title="${2 ** i}" aria-label="${2 ** i}" dip-pos="${8 - i}">
-            `).join("")}
-        </fieldset>
-        <fieldset class="mode">
-            <legend>Mode</legend>
-            <input type="radio" title="CPU run" name="mode" value="cpuRun" aria-label="CPU run">
-            <input type="radio" title="Off" name="mode" value="off" checked aria-label="Off">
-            <input type="radio" title="RAM write" name="mode" value="ramWrite" aria-label="RAM write">
-        </fieldset>
-        <div class="led cpuRun"></div>
-        <div class="led ramWrite"></div>
-        <div class="led custom"></div>
-    `;
+        element.querySelectorAll(".dips input").forEach(function(dipSwitch) {
+            dipSwitch.addEventListener("change", function() {
+                Module.setDips(id, thisScope.getDipsValue("system"), thisScope.getDipsValue("addr"), thisScope.getDipsValue("data"));
+            });
+        });
 
-    function getDipsValue(type) {
+        element.querySelectorAll(".mode input").forEach(function(modeState) {
+            modeState.addEventListener("change", function() {
+                thisScope.mode = document.querySelector(".mode input:checked").value;
+
+                if (thisScope.mode == "ramWrite") {
+                    thisScope.mode = "off";
+                }
+            });
+        });
+        
+        requestAnimationFrame(function render() {
+            if (thisScope.mode == "cpuRun" && Module.getCustomLed(id)) {
+                element.querySelector(".led.custom").classList.add("on");
+            } else {
+                element.querySelector(".led.custom").classList.remove("on");
+            }
+            
+            requestAnimationFrame(render);
+        });
+        
+        this.mode = "off";
+        
+        element.querySelector(".display").append(displayCanvas);
+        
+        document.querySelector("#instances").append(element);
+        document.querySelector("#applyInstances").append(this.createInstanceApplyCheckbox(id));
+    }
+    
+    get mode() {
+        return this._mode;
+    }
+    
+    set mode(value) {
+        this._mode = value;
+
+        this.element.setAttribute("data-mode", value);
+        this.element.querySelector(`.mode input[value='${value}']`).checked = true;
+
+        Module.setMode(this.id, ["off", "ramWrite", "cpuRun"].indexOf(value));
+        Module.loop();
+
+        this.displayCanvas.width = this.displayCanvas.width;
+        this.displayCanvas.height = this.displayCanvas.height;
+    }
+
+    getDipsValue(type) {
         var value = 0;
 
-        instance.querySelectorAll(`.dips.${type} input`).forEach(function(dipSwitch) {
+        this.element.querySelectorAll(`.dips.${type} input`).forEach(function(dipSwitch) {
             value <<= 1;
             value |= dipSwitch.checked ? 1 : 0;
         });
@@ -76,46 +126,84 @@ function createInstance(id) {
         return value;
     }
 
-    instance.querySelectorAll(".dips input").forEach(function(dipSwitch) {
-        dipSwitch.addEventListener("change", function() {
-            Module.setDips(id, getDipsValue("system"), getDipsValue("addr"), getDipsValue("data"));
-        })
-    });
+    renderLcdBitmap(buffer) {
+        var context = this.displayContext;
 
-    instance.querySelectorAll(".mode input").forEach(function(modeState) {
-        modeState.addEventListener("change", function() {
-            mode = document.querySelector(".mode input:checked").value;
-
-            Module.setMode(id, ["off", "ramWrite", "cpuRun"].indexOf(mode));
-            Module.loop();
-
-            if (mode == "ramWrite") {
-                document.querySelector(".mode input[value='off']").checked = true;
-                mode = "off";
-
-                Module.setMode(id, 0);
-            }
-        });
-    });
-
-    requestAnimationFrame(function render() {
-        if (mode == "cpuRun" && Module.getCustomLed(id)) {
-            instance.querySelector(".led.custom").classList.add("on");
-        } else {
-            instance.querySelector(".led.custom").classList.remove("on");
+        if (this.mode != "cpuRun") {
+            return;
         }
 
-        requestAnimationFrame(render);
-    });
+        for (var y = 0; y < LCD_HEIGHT; y++) {
+            if (y % 9 == 8) {
+                continue;
+            }
 
-    document.querySelector("#instances").append(instance);
-    document.querySelector("#applyInstances").append(createInstanceApplyCheckbox(id));
+            var rowSize = Math.ceil(LCD_WIDTH / 8);
+
+            for (var xByte = 0; xByte < rowSize; xByte++) {
+                var byte = buffer[(y * rowSize) + xByte];
+
+                for (var x = xByte * 8; x < (xByte + 1) * 8; x++) {
+                    if (x % 6 == 5) {
+                        continue;
+                    }
+
+                    context.fillStyle = ((byte >> (x % 8)) & 0x01) ? "#eeeeff66" : "#0000ff22";
+
+                    context.fillRect(
+                        x * LCD_PIXELS_PER_DOT,
+                        y * LCD_PIXELS_PER_DOT,
+                        LCD_PIXELS_PER_DOT - 1,
+                        LCD_PIXELS_PER_DOT - 1
+                    );
+                }
+            }
+        }
+    }
+
+    createInstanceApplyCheckbox() {
+        var container = document.createElement("div");
+        var checkbox = document.createElement("input");
+        var label = document.createElement("label");
+
+        checkbox.type = "checkbox";
+        checkbox.id = `applyInstance${this.id}`;
+        checkbox.checked = this.id == 0;
+
+        label.htmlFor = checkbox.id;
+        label.textContent = this.id;
+
+        container.append(checkbox);
+        container.append(label);
+
+        return container;
+    }
 }
+
+var loadCode = Module.cwrap("load_code", null, ["number", "number", "number", "number"]);
 
 function applyProperties(id) {
     var instance = document.getElementById(`instance${id}`);
 
     instance.hidden = !document.querySelector("#showInstance").checked;
+
+    if (document.querySelector("#loadCode").checked) {
+        var bytes = new Uint8Array(document.querySelector("#codeInput").value.match(/[0-9a-fA-F][0-9a-fA-F]\s*/g).map((value) => parseInt(value, 16)));
+
+        var buffer = Module._malloc(bytes.length);
+
+        Module.HEAPU8.set(bytes, buffer);
+
+        loadCode(id, buffer, 0xFF00, bytes.length);
+
+        Module._free(buffer);
+
+        document.querySelector("#loadCode").checked = false;
+    }
+}
+
+function renderLcdBitmap(id, buffer) {
+    instances.find((instance) => instance.id == id)?.renderLcdBitmap(buffer);
 }
 
 Module.onRuntimeInitialized = function() {
@@ -124,8 +212,12 @@ Module.onRuntimeInitialized = function() {
     Module.setup();
 
     for (var i = 0; i < INSTANCES; i++) {
-        createInstance(i);
+        instances.push(new Instance(i));
     }
+
+    document.querySelector("#codeInput").addEventListener("input", function() {
+        document.querySelector("#loadCode").checked = true;
+    });
 
     document.querySelector("#applyButton").addEventListener("click", function() {
         for (var i = 0; i < INSTANCES; i++) {
