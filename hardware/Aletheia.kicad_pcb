@@ -32462,6 +32462,14 @@
 		(uuid "0a389ec8-38af-41b8-aad1-d5c8f024e431")
 	)
 	(via
+		(at 119.38 48.26)
+		(size 0.6)
+		(drill 0.3)
+		(layers "F.Cu" "B.Cu")
+		(net 1)
+		(uuid "1d5defa8-24fa-42d8-ac57-f2181761c4c9")
+	)
+	(via
 		(at 106.629 33.071)
 		(size 0.6)
 		(drill 0.3)
@@ -32484,6 +32492,14 @@
 		(layers "F.Cu" "B.Cu")
 		(net 1)
 		(uuid "d972f432-34bb-475f-9fbf-fa5dc7043045")
+	)
+	(via
+		(at 139.7 40.64)
+		(size 0.6)
+		(drill 0.3)
+		(layers "F.Cu" "B.Cu")
+		(net 1)
+		(uuid "da66f137-5389-4eef-9cb8-d9504274d8e7")
 	)
 	(via
 		(at 106.629 60.96)
@@ -32727,7 +32743,7 @@
 	)
 	(segment
 		(start 139.7 38.1)
-		(end 139.7 45.72)
+		(end 139.7 40.64)
 		(width 1.5)
 		(layer "B.Cu")
 		(net 1)
@@ -32828,6 +32844,14 @@
 		(layer "B.Cu")
 		(net 1)
 		(uuid "8aacb17e-5998-4c32-98bd-ae94e9e14e1b")
+	)
+	(segment
+		(start 139.7 40.64)
+		(end 139.7 45.72)
+		(width 1.5)
+		(layer "B.Cu")
+		(net 1)
+		(uuid "9240f6a2-535c-4246-9642-bcc4f15a6f30")
 	)
 	(segment
 		(start 116.84 58.756)
@@ -32935,7 +32959,7 @@
 	)
 	(segment
 		(start 119.38 50.8)
-		(end 119.38 45.72)
+		(end 119.38 48.26)
 		(width 1.5)
 		(layer "B.Cu")
 		(net 1)
@@ -32948,6 +32972,14 @@
 		(layer "B.Cu")
 		(net 1)
 		(uuid "e725fb2a-5fd8-4560-81d3-0830d714d586")
+	)
+	(segment
+		(start 119.38 48.26)
+		(end 119.38 45.72)
+		(width 1.5)
+		(layer "B.Cu")
+		(net 1)
+		(uuid "e7980227-5279-42ae-9009-0f4f6353fdd3")
 	)
 	(segment
 		(start 129.54 73.66)
@@ -33622,6 +33654,14 @@
 		(uuid "09a463f0-ccc0-4817-ad28-e6488b374771")
 	)
 	(segment
+		(start 119.38 45.72)
+		(end 119.38 48.26)
+		(width 0.2)
+		(layer "In3.Cu")
+		(net 1)
+		(uuid "20c00e5d-e5c1-418a-9321-440f6e15f1bb")
+	)
+	(segment
 		(start 93.98 101.6)
 		(end 117.88 101.6)
 		(width 0.2)
@@ -33668,6 +33708,22 @@
 		(layer "In3.Cu")
 		(net 1)
 		(uuid "b7a421e0-062e-493f-b6d7-78e71cdef095")
+	)
+	(segment
+		(start 124.46 40.64)
+		(end 119.38 45.72)
+		(width 0.2)
+		(layer "In3.Cu")
+		(net 1)
+		(uuid "d95ceb64-23c2-47e2-abdb-f405588f61d9")
+	)
+	(segment
+		(start 139.7 40.64)
+		(end 124.46 40.64)
+		(width 0.2)
+		(layer "In3.Cu")
+		(net 1)
+		(uuid "de083ca5-e38e-4953-a533-65d3db320056")
 	)
 	(segment
 		(start 72.10295 119.38)
