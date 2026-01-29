@@ -2,7 +2,7 @@
 Designs and resources for the Finite Aletheia: a versatile, 8-bit hand-bootstrapped computer.
 
 ## Building and running the simulator
-Before building the simulator for the first time, ensure that dev dependencies are installed:
+Before building the simulator for the first time, ensure that dev dependencies are installed by running:
 
 ```bash
 cd simulator
