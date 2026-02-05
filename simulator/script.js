@@ -18,7 +18,7 @@ var displayContexts = {};
 
 export var Module = await createModule({
     locateFile: function(path) {
-        return "/simulator/build/aletheia.wasm";
+        return "build/aletheia.wasm";
     }
 });
 
